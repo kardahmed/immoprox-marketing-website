@@ -1,0 +1,9 @@
+{
+  "name": "immoprox-marketing-website",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Static marketing site for immoprox.io",
+  "scripts": {
+    "build": "echo 'Static site - nothing to build'"
+  }
+}
