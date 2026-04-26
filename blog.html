@@ -27,8 +27,19 @@
 <nav><div class="nav-i">
   <a href="/" class="nav-l"><img src="/favicon.png" alt="" style="width:28px;height:28px;border-radius:6px"> IMMO <span>PRO-X</span></a>
   <div class="nav-lk"><a href="/#features">Fonctionnalites</a><a href="/#how-it-works">Notre approche</a><a href="/blog">Blog</a><a href="/contact">Contact</a></div>
-  <div class="nav-r"><a href="https://app.immoprox.io/login" class="btn btn-g btn-sm">Connexion</a><a href="/contact" class="btn btn-p btn-sm">Demander une demo →</a></div>
+  <div class="nav-r"><a href="https://app.immoprox.io/login" class="btn btn-g btn-sm">Connexion</a><a href="/contact" class="btn btn-p btn-sm">Demander une demo →</a><button type="button" class="nav-burger" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="nav-mobile-panel"><span></span></button></div>
 </div></nav>
+<div class="nav-mobile" id="nav-mobile-panel" aria-hidden="true">
+  <a href="/#features">Fonctionnalites</a>
+  <a href="/#how-it-works">Notre approche</a>
+  <a href="/blog">Blog</a>
+  <a href="/contact">Contact</a>
+  <a href="/a-propos">A propos</a>
+  <div class="nav-mobile-cta">
+    <a href="https://app.immoprox.io/login" class="nav-mobile-login">Connexion</a>
+    <a href="/contact" class="nav-mobile-demo">Demander une demo →</a>
+  </div>
+</div>
 
 <section class="page-hero">
   <div class="ctn">
@@ -117,5 +128,6 @@
 const o=new IntersectionObserver(e=>{e.forEach(el=>{if(el.isIntersecting){el.target.classList.add('v');o.unobserve(el.target)}})},{threshold:.08});
 document.querySelectorAll('.rv').forEach(el=>o.observe(el));
 </script>
+<script src="/shared.js"></script>
 </body>
 </html>
