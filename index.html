@@ -42,14 +42,32 @@
     .s-head p{font-size:16px;line-height:1.7;color:var(--gray);max-width:520px;margin:0 auto}
 
     /* ═══ NAV ═══ */
-    nav{position:fixed;top:0;left:0;right:0;z-index:200;padding:0 24px}
-    .nav-i{max-width:1120px;margin:12px auto 0;display:flex;align-items:center;justify-content:space-between;height:56px;background:rgba(10,37,64,.55);backdrop-filter:blur(24px)saturate(180%);border:1px solid rgba(255,255,255,.07);border-radius:16px;padding:0 20px}
-    .nav-l{display:flex;align-items:center;gap:8px;font-size:17px;font-weight:800;color:#fff}
+    nav{position:fixed;top:0;left:0;right:0;z-index:200;padding:0 16px}
+    .nav-i{max-width:1120px;margin:12px auto 0;display:flex;align-items:center;justify-content:space-between;height:56px;background:rgba(10,37,64,.55);backdrop-filter:blur(24px)saturate(180%);border:1px solid rgba(255,255,255,.07);border-radius:16px;padding:0 16px}
+    .nav-l{display:flex;align-items:center;gap:8px;font-size:17px;font-weight:800;color:#fff;flex-shrink:0}
     .nav-l span{color:var(--blue)}
     .nav-lk{display:flex;gap:24px}
     .nav-lk a{font-size:13px;font-weight:500;color:rgba(255,255,255,.55);transition:color .2s}
     .nav-lk a:hover{color:#fff}
     .nav-r{display:flex;gap:8px;align-items:center}
+    /* Mobile menu */
+    .nav-burger{display:none;width:40px;height:40px;border:none;background:transparent;cursor:pointer;padding:0;align-items:center;justify-content:center;color:#fff;border-radius:10px;transition:background .2s}
+    .nav-burger:hover{background:rgba(255,255,255,.08)}
+    .nav-burger span{display:block;width:20px;height:2px;background:#fff;border-radius:2px;position:relative;transition:transform .25s,opacity .25s}
+    .nav-burger span::before,.nav-burger span::after{content:'';position:absolute;left:0;width:20px;height:2px;background:#fff;border-radius:2px;transition:transform .25s,top .25s}
+    .nav-burger span::before{top:-6px}.nav-burger span::after{top:6px}
+    .nav-burger[aria-expanded="true"] span{background:transparent}
+    .nav-burger[aria-expanded="true"] span::before{top:0;transform:rotate(45deg)}
+    .nav-burger[aria-expanded="true"] span::after{top:0;transform:rotate(-45deg)}
+    .nav-mobile{display:none;position:fixed;top:80px;left:16px;right:16px;z-index:199;background:rgba(10,37,64,.95);backdrop-filter:blur(24px)saturate(180%);border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:18px;flex-direction:column;gap:4px;max-height:calc(100vh - 100px);overflow-y:auto;opacity:0;transform:translateY(-8px);pointer-events:none;transition:opacity .2s,transform .2s}
+    .nav-mobile.open{display:flex;opacity:1;transform:translateY(0);pointer-events:auto}
+    .nav-mobile a{display:block;padding:12px 14px;border-radius:10px;font-size:15px;font-weight:500;color:rgba(255,255,255,.75);transition:background .2s,color .2s}
+    .nav-mobile a:hover,.nav-mobile a:focus{background:rgba(255,255,255,.06);color:#fff}
+    .nav-mobile .nav-mobile-cta{margin-top:8px;padding-top:14px;border-top:1px solid rgba(255,255,255,.08);display:flex;flex-direction:column;gap:8px}
+    .nav-mobile .nav-mobile-cta a{text-align:center;font-weight:700}
+    .nav-mobile .nav-mobile-cta .nav-mobile-login{background:rgba(255,255,255,.06);color:#fff}
+    .nav-mobile .nav-mobile-cta .nav-mobile-demo{background:var(--blue);color:#fff}
+    body.nav-open{overflow:hidden}
 
     /* ═══ HERO ═══ */
     .hero{position:relative;min-height:100vh;display:flex;align-items:center;overflow:hidden;background:linear-gradient(165deg,#050D1A 0%,#0A2540 35%,#0B3D6F 65%,#0579DA 100%)}
@@ -315,20 +333,59 @@
       .sp-i{grid-template-columns:1fr!important;gap:32px}.split.alt .sp-i{direction:ltr}
       .bento{grid-template-columns:1fr 1fr}.b-card.w{grid-column:auto}
       .howit-grid{grid-template-columns:1fr}.t-grid{grid-template-columns:1fr}
-      .nav-lk{display:none}.fb{display:none}.dash-side{display:none}
+      .nav-lk{display:none}.nav-burger{display:inline-flex}
+      .nav-r .btn{display:none}
+      .fb{display:none}.dash-side{display:none}
       .ba-grid{grid-template-columns:1fr;gap:16px}.ba-arrow{transform:rotate(90deg)}
-      .mobile-inner{flex-direction:column}.stats-row{gap:24px}.trust-row{gap:20px}
-      .cmp-table{font-size:12px}.cmp-table th,.cmp-table td{padding:10px 12px}
+      .mobile-inner{flex-direction:column;gap:32px}.stats-row{gap:24px;padding:48px 0}.trust-row{gap:20px}
+      .cmp-table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:0 -18px;padding:0 18px}
+      .cmp-table{min-width:560px;font-size:12px}.cmp-table th,.cmp-table td{padding:10px 12px}
       .counters{gap:24px}.counter .num{font-size:28px}
+      .feat,.howit,.testi,.cta-end,.compare,.faq,.mobile-sec,.split,.ba,.integ{padding:64px 0}
+      .hero-c{padding:120px 0 50px}
+      .stats-row{flex-wrap:wrap}.stat-num{font-size:38px!important}
+      .logos-tk{gap:36px}
+      .app-win{transform:rotateX(0)}
+      .hero{min-height:auto}
     }
     @media(max-width:640px){
-      .bento,.howit-grid{grid-template-columns:1fr}
-      .hero-btn{flex-direction:column;align-items:center}
-      .counters{flex-direction:column;gap:20px}
+      .ctn{padding:0 18px}
+      .bento,.howit-grid{grid-template-columns:1fr;gap:12px}
+      .hero h1{letter-spacing:-.5px}
+      .hero-btn{flex-direction:column;align-items:stretch;gap:10px;padding:0 8px}
+      .hero-btn .btn{justify-content:center;width:100%}
+      .counters{display:grid;grid-template-columns:1fr 1fr;gap:20px;flex-direction:initial;justify-items:center}
+      .counter .num{font-size:24px}
       .ft-top{grid-template-columns:1fr!important;gap:28px;text-align:center}
       .ft-brand{align-items:center}.ft-soc{justify-content:center}
       .ft-bot{flex-direction:column;gap:8px;text-align:center}
       .kpi-row{grid-template-columns:1fr 1fr}
+      .b-card{padding:22px 20px}
+      .howit-c{padding:24px 20px}
+      .t-c{padding:20px 18px}
+      .ba-col{padding:22px 18px}
+      .feat,.howit,.testi,.cta-end,.compare,.faq,.mobile-sec,.split,.ba,.integ,.logos{padding:56px 0}
+      .s-head{margin-bottom:36px}
+      .stat-num{font-size:32px!important}
+      .stats-row{gap:20px;padding:36px 0}
+      .stat-item{flex:1 1 40%;min-width:130px}
+      .trust-row{gap:14px}.trust-item{font-size:12px}
+      .phone-frame{width:240px;height:480px}
+      .wa-float{bottom:16px;right:16px;padding:10px 14px;font-size:13px}
+      .wa-float-label{display:none}
+      .int-c{width:52px;height:52px}.int-c svg{width:24px;height:24px}
+      .fb-1,.fb-2,.fb-3{display:none}
+      .app-mock{margin:0 -10px}
+      .cmp-table-wrap{margin:0 -18px;padding:0 18px}
+      .cmp-table{min-width:520px}
+      .lg-i{gap:6px}.lg-n{font-size:13px}
+      .faq-q{font-size:14px;padding:16px 0}.faq-a p{font-size:13px}
+      .testi h2{font-size:24px}
+    }
+    @media(max-width:380px){
+      .counters{grid-template-columns:1fr 1fr;gap:16px}
+      .counter .num{font-size:22px}
+      .hero h1{font-size:30px}
     }
 
     .rv{opacity:0;transform:translateY(28px);transition:all .7s cubic-bezier(.16,1,.3,1)}
@@ -346,9 +403,20 @@
   <div class="nav-i">
     <a href="/" class="nav-l"><img src="/favicon.png" alt="IMMO PRO-X" style="width:28px;height:28px;border-radius:6px"> IMMO <span>PRO-X</span></a>
     <div class="nav-lk"><a href="#features">Fonctionnalites</a><a href="#how-it-works">Notre approche</a><a href="/blog">Blog</a><a href="/contact">Contact</a></div>
-    <div class="nav-r"><a href="https://app.immoprox.io/login" class="btn btn-g btn-sm">Connexion</a><a href="/contact" class="btn btn-p btn-sm">Demander une demo →</a></div>
+    <div class="nav-r"><a href="https://app.immoprox.io/login" class="btn btn-g btn-sm">Connexion</a><a href="/contact" class="btn btn-p btn-sm">Demander une demo →</a><button type="button" class="nav-burger" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="nav-mobile-panel"><span></span></button></div>
   </div>
 </nav>
+<div class="nav-mobile" id="nav-mobile-panel" aria-hidden="true">
+  <a href="#features">Fonctionnalites</a>
+  <a href="#how-it-works">Notre approche</a>
+  <a href="/blog">Blog</a>
+  <a href="/contact">Contact</a>
+  <a href="/a-propos">A propos</a>
+  <div class="nav-mobile-cta">
+    <a href="https://app.immoprox.io/login" class="nav-mobile-login">Connexion</a>
+    <a href="/contact" class="nav-mobile-demo">Demander une demo →</a>
+  </div>
+</div>
 
 <!-- HERO -->
 <section class="hero">
@@ -574,7 +642,8 @@
       <h2 class="rv rv-1">Pourquoi choisir IMMO PRO-X ?</h2>
       <p class="rv rv-2">Comparez avec vos outils actuels.</p>
     </div>
-    <table class="cmp-table rv rv-3">
+    <div class="cmp-table-wrap rv rv-3">
+    <table class="cmp-table">
       <thead>
         <tr><th>Fonctionnalite</th><th>Cahier / Excel</th><th>CRM generique</th><th class="hl">IMMO PRO-X</th></tr>
       </thead>
@@ -590,6 +659,7 @@
         <tr><td>Support en francais & arabe</td><td class="no">—</td><td class="no">Anglais seulement</td><td class="hl yes">✓ Equipe locale Algerie</td></tr>
       </tbody>
     </table>
+    </div>
   </div>
 </section>
 
@@ -671,11 +741,12 @@
 </footer>
 
 <!-- WhatsApp floating button -->
-<a href="https://wa.me/213542766068?text=Bonjour%2C%20je%20suis%20interesse%20par%20IMMO%20PRO-X" target="_blank" class="wa-float">
+<a href="https://wa.me/213542766068?text=Bonjour%2C%20je%20suis%20interesse%20par%20IMMO%20PRO-X" target="_blank" class="wa-float" aria-label="Nous contacter sur WhatsApp">
   <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-  Une question ?
+  <span class="wa-float-label">Une question ?</span>
 </a>
 
+<script src="/shared.js"></script>
 <script>
 // Scroll reveal
 const o=new IntersectionObserver(e=>{e.forEach(el=>{if(el.isIntersecting){el.target.classList.add('v');o.unobserve(el.target)}})},{threshold:.08,rootMargin:'0px 0px -40px 0px'});

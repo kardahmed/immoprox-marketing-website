@@ -18,6 +18,10 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="shared.css">
+  <style>
+    .contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:40px;max-width:900px;margin:0 auto}
+    @media(max-width:880px){.contact-grid{grid-template-columns:1fr;gap:24px;max-width:560px}}
+  </style>
 </head>
 <body><!-- Google Tag Manager (noscript) -->
 <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-NF3G7HXL" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
@@ -27,8 +31,19 @@
 <nav><div class="nav-i">
   <a href="/" class="nav-l"><img src="/favicon.png" alt="" style="width:28px;height:28px;border-radius:6px"> IMMO <span>PRO-X</span></a>
   <div class="nav-lk"><a href="/#features">Fonctionnalites</a><a href="/#how-it-works">Notre approche</a><a href="/blog">Blog</a><a href="/a-propos">A propos</a></div>
-  <div class="nav-r"><a href="https://app.immoprox.io/login" class="btn btn-g btn-sm">Connexion</a></div>
+  <div class="nav-r"><a href="https://app.immoprox.io/login" class="btn btn-g btn-sm">Connexion</a><button type="button" class="nav-burger" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="nav-mobile-panel"><span></span></button></div>
 </div></nav>
+<div class="nav-mobile" id="nav-mobile-panel" aria-hidden="true">
+  <a href="/#features">Fonctionnalites</a>
+  <a href="/#how-it-works">Notre approche</a>
+  <a href="/blog">Blog</a>
+  <a href="/contact">Contact</a>
+  <a href="/a-propos">A propos</a>
+  <div class="nav-mobile-cta">
+    <a href="https://app.immoprox.io/login" class="nav-mobile-login">Connexion</a>
+    <a href="/contact" class="nav-mobile-demo">Demander une demo →</a>
+  </div>
+</div>
 
 <section class="page-hero">
   <div class="ctn">
@@ -40,7 +55,7 @@
 
 <section class="page-content">
   <div class="ctn">
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:40px;max-width:900px;margin:0 auto">
+    <div class="contact-grid">
       <!-- Contact cards -->
       <div style="display:flex;flex-direction:column;gap:16px">
         <div class="card rv">
@@ -569,5 +584,6 @@ form2.addEventListener('submit', async (e) => {
   }
 })
 </script>
+<script src="/shared.js"></script>
 </body>
 </html>
