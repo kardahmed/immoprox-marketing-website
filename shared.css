@@ -141,9 +141,11 @@ footer{padding:64px 0 0;background:#050D1A;border-top:1px solid rgba(255,255,255
   .nav-lk{display:none}
   .nav-burger{display:inline-flex}
   .nav-r .btn:not(.nav-burger){display:none}
+  .nav-i{background:rgba(10,37,64,.92)}
   .ft-top{grid-template-columns:1fr 1fr;gap:32px}
   .page-hero{padding:100px 0 50px}
   .page-content{padding:48px 0 64px}
+  section[id]{scroll-margin-top:88px}
 }
 @media(max-width:860px){
   .page-content [style*="grid-template-columns:repeat(3,1fr)"],
