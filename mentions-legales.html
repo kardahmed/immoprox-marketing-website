@@ -114,7 +114,7 @@
 <footer><div class="ctn">
   <div class="ft-top">
     <div class="ft-brand">
-      <div class="ft-logo"><img src="/favicon.png" alt="" style="width:24px;height:24px;border-radius:5px"> IMMO <span>PRO-X</span></div>
+      <div class="ft-logo"><img src="/favicon.png" alt="" loading="lazy" decoding="async" width="24" height="24" style="width:24px;height:24px;border-radius:5px"> IMMO <span>PRO-X</span></div>
       <p class="ft-desc">Le CRM dédié aux professionnels de l'immobilier.<br><span style="opacity:.7;font-size:11px">by SENSIUM X HOLDINGS LLC</span></p>
     </div>
     <div class="ft-col"><h4>Plateforme</h4><a href="/#profils">Profils</a><a href="/#features">Fonctionnalités</a><a href="/#benefices">Bénéfices</a><a href="/#faq">FAQ</a></div>
@@ -127,6 +127,7 @@
   </div>
 </div></footer>
 
+<script src="/tracking.js" defer></script>
 <script src="/shared.js"></script>
 <script>
 const o=new IntersectionObserver(e=>{e.forEach(el=>{if(el.isIntersecting){el.target.classList.add('v');o.unobserve(el.target)}})},{threshold:.08});

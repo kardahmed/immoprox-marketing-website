@@ -97,6 +97,8 @@
       banner.classList.remove('show');
       banner.remove();
       loadGTM();
+      // Notifie tracking.js que le consentement vient d'être donné
+      try { window.dispatchEvent(new Event('cookie-consent-given')); } catch (e) {}
     });
     banner.querySelector('.cookie-decline').addEventListener('click', function () {
       setConsent('declined');
