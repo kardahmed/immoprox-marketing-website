@@ -18,23 +18,48 @@ RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{DOCUMENT_ROOT}/$1.html -f
 RewriteRule ^(.+?)/?$ /$1.html [L]
 
+# Custom 404 page
+ErrorDocument 404 /404.html
+
 # Security headers for the immoprox.io marketing site.
-# CSP is intentionally omitted — GTM injects scripts dynamically and a
-# strict CSP would break tag-manager-driven analytics.
 <IfModule mod_headers.c>
   Header set X-Content-Type-Options "nosniff"
   Header set X-Frame-Options "SAMEORIGIN"
   Header set Referrer-Policy "strict-origin-when-cross-origin"
   Header set Permissions-Policy "camera=(), microphone=(), geolocation=()"
   Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains" env=HTTPS
+
+  # Content Security Policy — autorise GTM, Google Analytics, Google Fonts,
+  # Supabase (formulaire) et Cal.eu (embed). 'unsafe-inline' sur script-src
+  # est requis par GTM pour son bootstrap.
+  Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com https://app.cal.eu https://cal.eu; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https:; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https://*.supabase.co https://www.google-analytics.com https://*.cal.eu wss://*.supabase.co; frame-src https://app.cal.eu https://cal.eu https://www.googletagmanager.com; frame-ancestors 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"
 </IfModule>
 
-# Long-cache static assets — PNGs and CSS are stable, content-hashed
-# updates aren't applicable here so a moderate 7-day TTL is fine.
+# Cache : règles différenciées par type de contenu
 <IfModule mod_expires.c>
   ExpiresActive On
-  ExpiresByType image/png "access plus 7 days"
-  ExpiresByType image/jpeg "access plus 7 days"
-  ExpiresByType image/svg+xml "access plus 7 days"
-  ExpiresByType text/css "access plus 7 days"
+  # HTML : pas de cache (mises à jour immédiates)
+  ExpiresByType text/html "access plus 0 seconds"
+  # CSS / JS : 1 jour (équilibre fraîcheur / perf)
+  ExpiresByType text/css "access plus 1 day"
+  ExpiresByType application/javascript "access plus 1 day"
+  ExpiresByType application/x-javascript "access plus 1 day"
+  # Images : 30 jours
+  ExpiresByType image/png "access plus 30 days"
+  ExpiresByType image/jpeg "access plus 30 days"
+  ExpiresByType image/webp "access plus 30 days"
+  ExpiresByType image/svg+xml "access plus 30 days"
+  ExpiresByType image/x-icon "access plus 30 days"
+  # Fonts : 1 an
+  ExpiresByType font/woff2 "access plus 1 year"
+  ExpiresByType font/woff "access plus 1 year"
+  # XML : 1 jour
+  ExpiresByType application/xml "access plus 1 day"
+</IfModule>
+
+# Compression gzip
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/css text/xml text/plain
+  AddOutputFilterByType DEFLATE application/javascript application/xml application/json
+  AddOutputFilterByType DEFLATE image/svg+xml font/woff font/woff2
 </IfModule>

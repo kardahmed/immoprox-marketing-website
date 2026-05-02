@@ -8,14 +8,34 @@
   <link rel="canonical" href="https://immoprox.io/contact">
   <link rel="icon" type="image/png" href="/favicon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/shared.css">
   <meta property="og:title" content="Contact — IMMO PRO-X">
   <meta property="og:description" content="Demandez une démo personnalisée d'IMMO PRO-X.">
+  <meta property="og:image" content="https://immoprox.io/og-image.png">
+  <meta property="og:url" content="https://immoprox.io/contact">
   <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary_large_image">
   <style>
-    .contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:40px;max-width:900px;margin:0 auto}
+    .contact-grid{display:grid;grid-template-columns:1.4fr 1fr;gap:36px;max-width:1040px;margin:0 auto;align-items:start}
     @media(max-width:880px){.contact-grid{grid-template-columns:1fr;gap:24px;max-width:560px}}
+    .contact-cards{display:flex;flex-direction:column;gap:12px;order:2}
+    .contact-cards-label{font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:2px}
+    .contact-cards .card{padding:16px 18px}
+    .contact-cards .card h3{font-size:14px;margin:0;font-weight:700}
+    .contact-cards .card p{margin:0;font-size:12px;color:var(--gray)}
+    .form-card{order:1}
+    .trust-strip{padding:14px 16px;background:rgba(0,212,160,.06);border:1px solid rgba(0,212,160,.18);border-radius:12px;font-size:12px;color:var(--gray);line-height:1.7}
+    .trust-strip strong{color:var(--dark);font-weight:700}
+    /* Live validation : checkmark vert */
+    .field input.valid,.field select.valid,.field textarea.valid{border-color:var(--green)!important;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2300D4A0' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:36px!important}
+    .next-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:24px}
+    @media(max-width:640px){.next-steps{grid-template-columns:1fr}}
+    .next-step{padding:20px 16px;background:var(--white);border:1px solid var(--border);border-radius:12px}
+    .next-step .num{font-size:22px;font-weight:900;color:var(--blue);margin-bottom:4px}
+    .next-step h3{font-size:13px;font-weight:700;margin-bottom:4px}
+    .next-step p{font-size:12px;color:var(--gray);margin:0;line-height:1.5}
   </style>
 </head>
 <body><!-- Google Tag Manager (noscript) -->
@@ -47,59 +67,46 @@
 <section class="page-content">
   <div class="ctn">
     <div class="contact-grid">
-      <!-- Contact cards -->
-      <div style="display:flex;flex-direction:column;gap:16px">
-        <div class="card rv">
-          <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
-            <div style="width:40px;height:40px;border-radius:10px;background:#25D366;display:flex;align-items:center;justify-content:center">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="#fff"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51l-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/></svg>
-            </div>
-            <div>
-              <h3 style="margin:0">WhatsApp</h3>
-              <p style="margin:0;font-size:13px">Reponse en moins de 2h</p>
-            </div>
-          </div>
-          <a href="https://wa.me/213542766068" target="_blank" style="color:var(--blue);font-size:14px;font-weight:600">+213 542 766 068 →</a>
-        </div>
+      <!-- Cartes de contact (canaux secondaires, après le formulaire) -->
+      <aside class="contact-cards">
+        <div class="contact-cards-label">Autres canaux</div>
 
-        <div class="card rv rv-1">
-          <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
-            <div style="width:40px;height:40px;border-radius:10px;background:var(--blue);display:flex;align-items:center;justify-content:center">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 7l-8.97 5.7a1.94 1.94 0 01-2.06 0L2 7"/></svg>
+        <a href="https://wa.me/213542766068" target="_blank" rel="noopener noreferrer" class="card rv" style="text-decoration:none;color:inherit;display:block">
+          <div style="display:flex;align-items:center;gap:12px">
+            <div style="width:36px;height:36px;border-radius:9px;background:#25D366;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="#fff"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51l-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/></svg>
             </div>
-            <div>
-              <h3 style="margin:0">Email</h3>
-              <p style="margin:0;font-size:13px">Support technique et commercial</p>
-            </div>
+            <div style="flex:1;min-width:0"><h3>WhatsApp</h3><p>+213 542 766 068</p></div>
+            <span style="color:var(--blue);font-weight:700">→</span>
           </div>
-          <a href="mailto:contact@immoprox.io" style="color:var(--blue);font-size:14px;font-weight:600">contact@immoprox.io →</a>
-        </div>
+        </a>
 
-        <div class="card rv rv-2">
-          <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
-            <div style="width:40px;height:40px;border-radius:10px;background:var(--cyan);display:flex;align-items:center;justify-content:center">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z"/></svg>
+        <a href="mailto:contact@immoprox.io" class="card rv rv-1" style="text-decoration:none;color:inherit;display:block">
+          <div style="display:flex;align-items:center;gap:12px">
+            <div style="width:36px;height:36px;border-radius:9px;background:var(--blue);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 7l-8.97 5.7a1.94 1.94 0 01-2.06 0L2 7"/></svg>
             </div>
-            <div>
-              <h3 style="margin:0">Telephone</h3>
-              <p style="margin:0;font-size:13px">Du dimanche au jeudi, 9h-17h</p>
-            </div>
+            <div style="flex:1;min-width:0"><h3>Email</h3><p style="word-break:break-all">contact@immoprox.io</p></div>
+            <span style="color:var(--blue);font-weight:700">→</span>
           </div>
-          <span style="color:var(--blue);font-size:14px;font-weight:600">+213 542 766 068</span>
-        </div>
+        </a>
 
-        <div class="card rv rv-3">
-          <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
-            <div style="width:40px;height:40px;border-radius:10px;background:var(--green);display:flex;align-items:center;justify-content:center">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+        <a href="tel:+213542766068" class="card rv rv-2" style="text-decoration:none;color:inherit;display:block">
+          <div style="display:flex;align-items:center;gap:12px">
+            <div style="width:36px;height:36px;border-radius:9px;background:var(--cyan);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z"/></svg>
             </div>
-            <div>
-              <h3 style="margin:0">Horaires</h3>
-              <p style="margin:0;font-size:13px">Dim — Jeu : 9h00 - 17h00<br>Ven — Sam : Ferme</p>
-            </div>
+            <div style="flex:1;min-width:0"><h3>Téléphone</h3><p>Dim — Jeu, 9h - 17h</p></div>
+            <span style="color:var(--blue);font-weight:700">→</span>
           </div>
+        </a>
+
+        <div class="trust-strip rv rv-3">
+          <strong>Démo en 30 min</strong> · Sans engagement<br>
+          <strong>Réponse sous 24 h</strong> ouvrées<br>
+          <strong>Données protégées</strong> — voir <a href="/securite" style="color:var(--blue)">sécurité</a>
         </div>
-      </div>
+      </aside>
 
       <!-- Contact form — 2 steps -->
       <div class="card rv rv-1 form-card" id="form-card">
@@ -118,13 +125,18 @@
         <!-- Step 1 form (visible by default) -->
         <form id="form-step-1" class="form-step" novalidate>
           <div>
-            <h2>Demandez une demo</h2>
-            <p class="form-sub">Laissez vos coordonnees — on revient vers vous sous 24h ouvrees avec un creneau.</p>
+            <h2>Réservez votre démo personnalisée</h2>
+            <p class="form-sub"><strong style="color:var(--dark)">30 minutes en visio</strong> avec un membre de notre équipe — vous repartez avec des réponses concrètes pour votre activité.</p>
+            <div style="display:flex;gap:14px;flex-wrap:wrap;margin-top:10px;font-size:12px;color:var(--gray)">
+              <span style="display:inline-flex;align-items:center;gap:6px"><span style="width:6px;height:6px;border-radius:50%;background:var(--green);display:inline-block"></span>Moins de 30 secondes</span>
+              <span style="display:inline-flex;align-items:center;gap:6px"><span style="width:6px;height:6px;border-radius:50%;background:var(--green);display:inline-block"></span>Sans engagement</span>
+              <span style="display:inline-flex;align-items:center;gap:6px"><span style="width:6px;height:6px;border-radius:50%;background:var(--green);display:inline-block"></span>Réponse sous 24 h</span>
+            </div>
           </div>
 
           <div class="field">
             <label for="f1-name">Nom complet <span class="req">*</span></label>
-            <input id="f1-name" name="full_name" type="text" required autocomplete="name" placeholder="Votre nom" />
+            <input id="f1-name" name="full_name" type="text" required autocomplete="name" placeholder="Prénom Nom" />
             <div class="err-msg" data-err-for="f1-name"></div>
           </div>
 
@@ -135,156 +147,85 @@
               <div class="err-msg" data-err-for="f1-email"></div>
             </div>
             <div class="field">
-              <label for="f1-phone">Telephone <span class="req">*</span></label>
+              <label for="f1-phone">Téléphone <span class="req">*</span></label>
               <input id="f1-phone" name="phone" type="tel" required autocomplete="tel" placeholder="0555 12 34 56" />
+              <div class="hint">Pour vous rappeler rapidement</div>
               <div class="err-msg" data-err-for="f1-phone"></div>
             </div>
           </div>
 
           <div class="form-actions">
-            <button type="submit" class="btn btn-p" id="btn-step-1">
+            <button type="submit" class="btn btn-p" id="btn-step-1" style="width:100%;justify-content:center;font-size:15px;padding:16px 32px">
               Continuer <span aria-hidden="true">→</span>
             </button>
           </div>
 
           <p class="form-sub" style="font-size:11px;text-align:center">
-            Vos donnees sont confidentielles — voir <a href="/confidentialite" style="color:var(--blue)">politique de confidentialite</a>.
+            En soumettant ce formulaire, vous acceptez notre <a href="/confidentialite" style="color:var(--blue)">politique de confidentialité</a>. Aucun spam — promis.
           </p>
+
+          <div style="text-align:center;padding-top:14px;border-top:1px solid var(--border);margin-top:8px">
+            <p style="font-size:12px;color:var(--gray);margin-bottom:8px">Pressé ? Réservez directement votre créneau :</p>
+            <a href="https://cal.eu/kardahmed/demo-immo-pro-x-30min" target="_blank" rel="noopener noreferrer" style="font-size:13px;color:var(--blue);font-weight:600;text-decoration:underline">Choisir un créneau dans le calendrier →</a>
+          </div>
         </form>
 
         <!-- Step 2 form (hidden until step 1 is submitted) -->
         <form id="form-step-2" class="form-step" novalidate hidden>
           <div>
-            <h2>Votre projet</h2>
-            <p class="form-sub">Ces informations nous permettent de preparer une demo adaptee a votre contexte.</p>
+            <h2>Parlez-nous de votre activité</h2>
+            <p class="form-sub">Quelques infos pour préparer une démo adaptée. <strong style="color:var(--dark)">5 questions essentielles</strong> — les détails se feront en visio.</p>
           </div>
 
-          <!-- 1. Type d'activite + 2. Nom entreprise -->
+          <!-- 1. Type d'activité (REQUIS) -->
           <div class="field">
-            <label>Type d'activite <span class="req">*</span></label>
+            <label>Type d'activité <span class="req">*</span></label>
             <div class="radio-grid">
-              <label><input type="radio" name="activity_type" value="agence" required /><span>Agence immobiliere</span></label>
+              <label><input type="radio" name="activity_type" value="agence" required /><span>Agence immobilière</span></label>
               <label><input type="radio" name="activity_type" value="promoteur" required /><span>Promoteur immobilier</span></label>
-              <label><input type="radio" name="activity_type" value="freelance" required /><span>Agent freelance</span></label>
+              <label><input type="radio" name="activity_type" value="freelance" required /><span>Agent indépendant</span></label>
               <label><input type="radio" name="activity_type" value="entreprise" required /><span>Autre entreprise</span></label>
             </div>
             <div class="err-msg" data-err-for="activity_type"></div>
           </div>
 
+          <!-- 2. Nom entreprise (REQUIS) -->
           <div class="field">
             <label for="f2-company">Nom de votre entreprise <span class="req">*</span></label>
-            <input id="f2-company" name="company_name" type="text" required autocomplete="organization" placeholder="Ex: Immobiliere Atlas" />
+            <input id="f2-company" name="company_name" type="text" required autocomplete="organization" placeholder="Ex : Immobilière Atlas" />
             <div class="err-msg" data-err-for="f2-company"></div>
           </div>
 
-          <!-- 3. Nb agents + 5. Leads/mois -->
+          <!-- 3. Nb agents (REQUIS) + 4. Outils actuels (REQUIS) -->
           <div class="field-grid">
             <div class="field">
-              <label for="f2-agents">Nombre d'agents commerciaux <span class="req">*</span></label>
+              <label for="f2-agents">Taille de l'équipe commerciale <span class="req">*</span></label>
               <select id="f2-agents" name="agents_count" required>
                 <option value="" disabled selected>Choisir...</option>
-                <option value="1">1 agent</option>
-                <option value="2-5">2 a 5 agents</option>
-                <option value="6-15">6 a 15 agents</option>
-                <option value="16-50">16 a 50 agents</option>
+                <option value="1">Solo / 1 personne</option>
+                <option value="2-5">2 à 5 personnes</option>
+                <option value="6-15">6 à 15 personnes</option>
+                <option value="16-50">16 à 50 personnes</option>
                 <option value="50+">Plus de 50</option>
               </select>
               <div class="err-msg" data-err-for="f2-agents"></div>
             </div>
             <div class="field">
-              <label for="f2-leads">Leads generes par mois <span class="req">*</span></label>
-              <select id="f2-leads" name="leads_per_month" required>
+              <label for="f2-tools-select">Outil actuel <span class="req">*</span></label>
+              <select id="f2-tools-select" name="current_tools" required>
                 <option value="" disabled selected>Choisir...</option>
-                <option value="<10">Moins de 10</option>
-                <option value="10-50">10 a 50</option>
-                <option value="50-200">50 a 200</option>
-                <option value="200+">Plus de 200</option>
+                <option value="nothing">Rien de structuré</option>
+                <option value="excel">Tableur (Excel / Sheets)</option>
+                <option value="whatsapp">Messagerie uniquement</option>
+                <option value="crm">Un CRM existant</option>
               </select>
-              <div class="err-msg" data-err-for="f2-leads"></div>
+              <div class="err-msg" data-err-for="f2-tools-select"></div>
             </div>
           </div>
 
-          <!-- 4. Zones + 6. Budget marketing -->
-          <div class="field-grid">
-            <div class="field">
-              <label for="f2-wilayas">Zones d'opération <span class="req">*</span></label>
-              <input id="f2-wilayas" name="wilayas" type="text" required placeholder="Ex : zones, villes ou régions où vous opérez" />
-              <div class="hint">Séparez par des virgules</div>
-              <div class="err-msg" data-err-for="f2-wilayas"></div>
-            </div>
-            <div class="field">
-              <label for="f2-budget">Budget marketing mensuel <span class="req">*</span></label>
-              <select id="f2-budget" name="marketing_budget_monthly" required>
-                <option value="" disabled selected>Choisir...</option>
-                <option value="<50k">Moins de 50 000 DA</option>
-                <option value="50-200k">50 000 a 200 000 DA</option>
-                <option value="200k-1M">200 000 a 1 000 000 DA</option>
-                <option value=">1M">Plus de 1 000 000 DA</option>
-              </select>
-              <div class="err-msg" data-err-for="f2-budget"></div>
-            </div>
-          </div>
-
-          <!-- 7. Canaux d'acquisition -->
+          <!-- 5. Echéance (REQUIS) -->
           <div class="field">
-            <label>Canaux d'acquisition actuels <span class="req">*</span></label>
-            <div class="checkbox-grid">
-              <label><input type="checkbox" name="acquisition_channels" value="whatsapp" /><span>WhatsApp</span></label>
-              <label><input type="checkbox" name="acquisition_channels" value="meta_ads" /><span>Meta Ads (Facebook/Instagram)</span></label>
-              <label><input type="checkbox" name="acquisition_channels" value="google_ads" /><span>Google Ads</span></label>
-              <label><input type="checkbox" name="acquisition_channels" value="word_of_mouth" /><span>Bouche a oreille</span></label>
-              <label><input type="checkbox" name="acquisition_channels" value="billboards" /><span>Panneaux / Affichage</span></label>
-              <label><input type="checkbox" name="acquisition_channels" value="salons" /><span>Salons / Evenements</span></label>
-              <label><input type="checkbox" name="acquisition_channels" value="seo" /><span>SEO / Site web</span></label>
-              <label><input type="checkbox" name="acquisition_channels" value="other" /><span>Autre</span></label>
-            </div>
-            <div class="err-msg" data-err-for="acquisition_channels"></div>
-          </div>
-
-          <!-- 8. Outils actuels -->
-          <div class="field">
-            <label>Outil actuel de suivi clients <span class="req">*</span></label>
-            <div class="radio-grid">
-              <label><input type="radio" name="current_tools" value="nothing" required /><span>Rien de structure</span></label>
-              <label><input type="radio" name="current_tools" value="excel" required /><span>Excel / Google Sheets</span></label>
-              <label><input type="radio" name="current_tools" value="whatsapp" required /><span>WhatsApp uniquement</span></label>
-              <label><input type="radio" name="current_tools" value="crm" required /><span>Un CRM existant</span></label>
-            </div>
-            <div class="err-msg" data-err-for="current_tools"></div>
-          </div>
-
-          <!-- 9. Decideur + noms conditionnels -->
-          <div class="field">
-            <label>Qui prend la decision d'achat ? <span class="req">*</span></label>
-            <div class="radio-grid">
-              <label><input type="radio" name="decision_maker" value="me" required /><span>Moi</span></label>
-              <label><input type="radio" name="decision_maker" value="boss" required /><span>Mon patron / directeur</span></label>
-              <label><input type="radio" name="decision_maker" value="partners" required /><span>Associes / co-fondateurs</span></label>
-              <label><input type="radio" name="decision_maker" value="committee" required /><span>Comite de direction</span></label>
-            </div>
-            <div class="err-msg" data-err-for="decision_maker"></div>
-          </div>
-
-          <div class="field hidden-field" id="field-decision-names">
-            <label for="f2-dm-names">Nom(s) de la/les personne(s) qui decide(nt) <span class="req">*</span></label>
-            <input id="f2-dm-names" name="decision_maker_names" type="text" placeholder="Ex: Mohamed Bensalem (directeur)" />
-            <div class="err-msg" data-err-for="f2-dm-names"></div>
-          </div>
-
-          <!-- 10. Frustration (1-10) -->
-          <div class="field">
-            <label for="f2-frustration">A quel point votre suivi clients actuel vous frustre ? <span class="req">*</span></label>
-            <div class="slider-row">
-              <span style="font-size:11px;color:var(--muted)">Pas du tout</span>
-              <input id="f2-frustration" name="frustration_score" type="range" min="1" max="10" value="5" step="1" />
-              <span style="font-size:11px;color:var(--muted)">Enormement</span>
-              <span class="slider-value" id="frustration-value">5</span>
-            </div>
-          </div>
-
-          <!-- 11. Echeance -->
-          <div class="field">
-            <label>Quand souhaitez-vous etre operationnel ? <span class="req">*</span></label>
+            <label>Quand souhaitez-vous être opérationnel ? <span class="req">*</span></label>
             <div class="radio-grid">
               <label><input type="radio" name="timeline" value="this_week" required /><span>Cette semaine</span></label>
               <label><input type="radio" name="timeline" value="this_month" required /><span>Dans le mois</span></label>
@@ -294,11 +235,40 @@
             <div class="err-msg" data-err-for="timeline"></div>
           </div>
 
-          <!-- 12. Message libre -->
-          <div class="field">
-            <label for="f2-message">Un besoin specifique a partager ?</label>
-            <textarea id="f2-message" name="message" rows="3" placeholder="Optionnel — un point particulier sur lequel vous voulez une reponse durant la demo."></textarea>
-          </div>
+          <!-- Champs optionnels regroupés (réduisent la perception de longueur) -->
+          <details style="border:1px solid var(--border);border-radius:10px;padding:0;margin-top:4px;background:var(--light)">
+            <summary style="cursor:pointer;padding:12px 16px;font-size:13px;font-weight:600;color:var(--gray);list-style:none;display:flex;align-items:center;justify-content:space-between">
+              <span>Plus d'informations <span style="color:var(--muted);font-weight:400">(optionnel — accélère la démo)</span></span>
+              <span style="font-size:18px;color:var(--blue)">+</span>
+            </summary>
+            <div style="padding:16px;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:14px">
+              <div class="field" style="margin:0">
+                <label for="f2-leads">Leads générés par mois</label>
+                <select id="f2-leads" name="leads_per_month">
+                  <option value="" selected>Préfère ne pas dire</option>
+                  <option value="<10">Moins de 10</option>
+                  <option value="10-50">10 à 50</option>
+                  <option value="50-200">50 à 200</option>
+                  <option value="200+">Plus de 200</option>
+                </select>
+              </div>
+              <div class="field" style="margin:0">
+                <label for="f2-wilayas">Zones d'opération</label>
+                <input id="f2-wilayas" name="wilayas" type="text" placeholder="Villes ou régions où vous opérez" />
+              </div>
+              <div class="field" style="margin:0">
+                <label for="f2-message">Un besoin spécifique ?</label>
+                <textarea id="f2-message" name="message" rows="3" placeholder="Un point particulier sur lequel vous voulez une réponse durant la démo."></textarea>
+              </div>
+            </div>
+          </details>
+
+          <!-- Champs cachés conservés pour compatibilité avec le schéma de la base -->
+          <input type="hidden" name="marketing_budget_monthly" value="" />
+          <input type="hidden" name="acquisition_channels" value="" />
+          <input type="hidden" name="decision_maker" value="" />
+          <input type="hidden" name="decision_maker_names" value="" />
+          <input type="hidden" name="frustration_score" value="" />
 
           <div class="form-actions">
             <button type="button" class="btn btn-ghost" id="btn-back">
@@ -312,11 +282,27 @@
       </div>
     </div>
 
-    <!-- Direct booking CTA -->
-    <div style="max-width:680px;margin:48px auto 0;text-align:center;padding:32px;background:var(--surface);border:1px solid var(--border);border-radius:16px" class="rv">
-      <h3 style="font-size:18px;font-weight:700;margin-bottom:8px;color:var(--dark)">Préférez-vous prendre rendez-vous directement ?</h3>
-      <p style="font-size:14px;color:var(--gray);margin-bottom:18px">Choisissez votre créneau de démo de 30 minutes en ligne — sans passer par le formulaire.</p>
-      <a href="https://cal.eu/kardahmed/demo-immo-pro-x-30min" target="_blank" rel="noopener" class="btn btn-p" style="font-size:14px">Réserver un créneau →</a>
+    <!-- Reassurance bar -->
+    <div style="max-width:920px;margin:56px auto 0;text-align:center" class="rv">
+      <h2 style="font-size:22px;font-weight:800;margin-bottom:8px">Ce qui se passe après l'envoi</h2>
+      <p style="font-size:14px;color:var(--gray);margin-bottom:20px">Aucune surprise — un parcours simple en 3 étapes.</p>
+      <div class="next-steps">
+        <div class="next-step">
+          <div class="num">1.</div>
+          <h3>Réponse rapide</h3>
+          <p>Nous revenons vers vous sous 24 h ouvrées avec des créneaux de démo.</p>
+        </div>
+        <div class="next-step">
+          <div class="num">2.</div>
+          <h3>Démo de 30 min</h3>
+          <p>En visio, on présente la plateforme sur vos vrais cas d'usage.</p>
+        </div>
+        <div class="next-step">
+          <div class="num">3.</div>
+          <h3>Configuration</h3>
+          <p>Si la plateforme vous convient, on configure ensemble. Opérationnel en quelques jours.</p>
+        </div>
+      </div>
     </div>
 
   </div>
@@ -420,8 +406,8 @@ function validateStep1(form) {
 
 function validateStep2(form) {
   let ok = true
-  // All required radios/selects/texts
-  const required = ['activity_type', 'company_name', 'agents_count', 'wilayas', 'leads_per_month', 'marketing_budget_monthly', 'current_tools', 'decision_maker', 'timeline']
+  // Required fields reduced to the 5 essentials for better conversion
+  const required = ['activity_type', 'company_name', 'agents_count', 'current_tools', 'timeline']
   for (const name of required) {
     const el = form.elements[name]
     if (!el) continue
@@ -435,41 +421,30 @@ function validateStep2(form) {
       clearFieldError(target)
     }
   }
-  // Acquisition channels: at least one
-  const channels = $$('input[name=acquisition_channels]:checked', form)
-  const chField = $('input[name=acquisition_channels]', form)
-  if (channels.length === 0) {
-    setFieldError(chField, 'Cochez au moins un canal')
-    ok = false
-  } else clearFieldError(chField)
-
-  // Conditional decision-maker names
-  const dm = form.decision_maker.value
-  if (dm && dm !== 'me') {
-    const names = form.decision_maker_names
-    if (!names.value.trim()) {
-      setFieldError(names, 'Precisez le(s) nom(s)')
-      ok = false
-    } else clearFieldError(names)
-  }
   return ok
 }
 
-// ─── Interactive behaviors ────────────────────────────────────────────────
-// Live slider value
-const frustration = $('#f2-frustration')
-const frustrationOut = $('#frustration-value')
-if (frustration) frustration.addEventListener('input', () => { frustrationOut.textContent = frustration.value })
-
-// Reveal decision-maker-names when boss/partners/committee selected
-$$('input[name=decision_maker]').forEach(r => r.addEventListener('change', () => {
-  const field = $('#field-decision-names')
-  const input = $('#f2-dm-names')
-  const needsNames = r.checked && r.value !== 'me'
-  field.classList.toggle('hidden-field', !needsNames)
-  input.required = needsNames
-  if (!needsNames) { input.value = ''; clearFieldError(input) }
-}))
+// ─── Live validation : ajoute la classe .valid quand un champ devient valide ─
+function attachLiveValidation(form) {
+  if (!form) return
+  const fields = form.querySelectorAll('input[type=text], input[type=email], input[type=tel], input[type=number], select, textarea')
+  fields.forEach(el => {
+    const check = () => {
+      const v = (el.value || '').trim()
+      let valid = false
+      if (el.type === 'email') valid = RE_EMAIL.test(v)
+      else if (el.type === 'tel') valid = RE_PHONE.test(v)
+      else if (el.tagName === 'SELECT') valid = !!v
+      else valid = v.length > 1
+      el.classList.toggle('valid', valid)
+    }
+    el.addEventListener('input', check)
+    el.addEventListener('change', check)
+    el.addEventListener('blur', check)
+  })
+}
+attachLiveValidation($('#form-step-1'))
+attachLiveValidation($('#form-step-2'))
 
 // ─── Step transitions ─────────────────────────────────────────────────────
 const form1 = $('#form-step-1')

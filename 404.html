@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Page introuvable — IMMO PRO-X</title>
+  <meta name="description" content="La page que vous cherchez n'existe pas ou a été déplacée. Retournez à l'accueil ou contactez-nous.">
+  <meta name="robots" content="noindex, follow">
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/shared.css">
+  <style>
+    body{display:flex;flex-direction:column;min-height:100vh;background:linear-gradient(165deg,#050D1A 0%,#0A2540 35%,#0B3D6F 65%,#0579DA 100%);color:#fff}
+    main{flex:1;display:flex;align-items:center;justify-content:center;padding:120px 24px 60px;text-align:center;position:relative;overflow:hidden}
+    main::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);background-size:60px 60px;mask-image:radial-gradient(ellipse 80% 70% at 50% 40%,black 30%,transparent 100%)}
+    .e-c{position:relative;z-index:1;max-width:560px}
+    .e-code{font-size:clamp(80px,14vw,140px);font-weight:900;letter-spacing:-4px;line-height:1;background:linear-gradient(135deg,#3BA3FF,#06B6D4);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:8px}
+    .e-c h1{font-size:clamp(24px,4vw,34px);font-weight:800;letter-spacing:-.5px;margin-bottom:14px;color:#fff}
+    .e-c p{font-size:16px;line-height:1.7;color:rgba(255,255,255,.6);margin-bottom:32px}
+    .e-cta{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+    .e-links{margin-top:48px;padding-top:32px;border-top:1px solid rgba(255,255,255,.08);display:flex;gap:18px;justify-content:center;flex-wrap:wrap;font-size:13px}
+    .e-links a{color:rgba(255,255,255,.55);transition:color .2s}
+    .e-links a:hover{color:#fff}
+    @media(max-width:640px){
+      main{padding:90px 18px 40px}
+      .e-cta{flex-direction:column;align-items:stretch;padding:0 16px}
+      .e-cta .btn{justify-content:center}
+    }
+  </style>
+</head>
+<body>
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-NF3G7HXL" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+
+<main>
+  <div class="e-c">
+    <div class="e-code">404</div>
+    <h1>Cette page n'existe pas</h1>
+    <p>Le lien que vous avez suivi est cassé, ou la page a été déplacée. Pas de panique — voici comment continuer.</p>
+    <div class="e-cta">
+      <a href="/" class="btn btn-p">Retour à l'accueil</a>
+      <a href="/contact" class="btn btn-g">Nous contacter</a>
+    </div>
+    <div class="e-links">
+      <a href="/#features">Fonctionnalités</a>
+      <a href="/#benefices">Bénéfices</a>
+      <a href="/blog">Blog</a>
+      <a href="/a-propos">À propos</a>
+      <a href="/securite">Sécurité</a>
+    </div>
+  </div>
+</main>
+
+</body>
+</html>
