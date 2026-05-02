@@ -1,63 +1,27 @@
 /* ═══════════════════════════════════════════════════════════════════════════
- *  IMMO PRO-X — Tracking Full Stack
+ *  IMMO PRO-X — Tracking Full Stack v2 (config dynamique via Supabase)
  *  ───────────────────────────────────────────────────────────────────────────
- *  Centralise GA4, Meta Pixel, Meta Conversions API (CAPI), TikTok Pixel,
- *  LinkedIn Insight Tag, Microsoft Clarity et Google Tag Manager.
+ *  Récupère automatiquement les IDs / pixels depuis Supabase site_config.
+ *  Aucune clé en dur dans ce fichier — TOUT se gère depuis /admin.
  *
- *  ⚠ Avant déploiement, REMPLACEZ les placeholders ci-dessous par vos vrais
- *  IDs (cherchez "REMPLACER" dans ce fichier). Voir TRACKING_SETUP.md.
+ *  Cycle de vie :
+ *  1. Au chargement, fetch /functions/v1/config → retourne les clés ACTIVÉES
+ *  2. Cache en localStorage (TTL 5 min) pour éviter un appel par page
+ *  3. Pour chaque clé présente, charge automatiquement le tracker correspondant
+ *  4. Expose window.IMMOTrack avec les méthodes lead(), click_cta(), etc.
  *
- *  Ce script :
- *  ─ Respecte le consentement cookie (cookie-banner) — rien ne charge tant
- *    que l'utilisateur n'a pas accepté.
- *  ─ Capture UTM + click ID (gclid, fbclid, ttclid, li_fat_id) en localStorage
- *  ─ Émet des events de conversion (lead, contact, schedule, click_cta)
- *  ─ Hash les emails / téléphones côté client avant envoi à Meta CAPI
- *  ─ Génère un event_id unique pour la déduplication Pixel ⇄ CAPI
+ *  Respect du consentement cookie (clé localStorage `ipx_cookie_consent_v1`).
  * ═══════════════════════════════════════════════════════════════════════════ */
 
 (function () {
   'use strict';
 
-  // ─── CONFIGURATION (REMPLACER par vos IDs) ──────────────────────────────
-  var CONFIG = {
-    // Google Analytics 4 — créer une propriété sur analytics.google.com
-    GA4_ID: 'G-XXXXXXXXXX', // REMPLACER (ex: G-ABC123XYZ4)
-
-    // Google Ads Conversion ID + Label — depuis ads.google.com → Conversions
-    GADS_CONVERSION_ID: 'AW-XXXXXXXXX',   // REMPLACER (ex: AW-1234567890)
-    GADS_CONVERSION_LABEL: 'XXXXXXXXX',   // REMPLACER (label de la conversion "Lead")
-
-    // Meta Pixel — depuis business.facebook.com → Events Manager
-    META_PIXEL_ID: '000000000000000', // REMPLACER (15 chiffres)
-
-    // Meta Conversions API endpoint (votre edge function — voir capi-template.js)
-    META_CAPI_ENDPOINT: '/api/meta-capi', // À configurer côté serveur
-
-    // TikTok Pixel — depuis ads.tiktok.com → Events Manager
-    TIKTOK_PIXEL_ID: 'XXXXXXXXXXXXXXXXXXXX', // REMPLACER
-
-    // LinkedIn Insight Tag — depuis campaign manager LinkedIn
-    LINKEDIN_PARTNER_ID: '0000000', // REMPLACER
-
-    // Microsoft Clarity (heatmaps, gratuit) — clarity.microsoft.com
-    CLARITY_ID: 'XXXXXXXXXX', // REMPLACER
-
-    // GTM (déjà présent dans shared.js)
-    GTM_ID: 'GTM-NF3G7HXL',
-
-    // Activer/désactiver chaque outil
-    ENABLE: {
-      ga4: true,
-      gads: true,
-      meta_pixel: true,
-      meta_capi: false,         // Activez quand l'edge function est déployée
-      tiktok: false,            // Activez quand vous en avez un
-      linkedin: false,          // Activez quand vous en avez un
-      clarity: false,           // Activez quand vous en avez un
-      gtm: true,
-    },
-  };
+  var SUPABASE_URL = 'https://lbnqccsebwiifxcucflg.supabase.co';
+  var CONFIG_ENDPOINT = SUPABASE_URL + '/functions/v1/config';
+  var CAPI_ENDPOINT = SUPABASE_URL + '/functions/v1/meta-capi';
+  var WHATSAPP_ENDPOINT = SUPABASE_URL + '/functions/v1/whatsapp-send';
+  var CACHE_KEY = 'ipx_tracking_config_v1';
+  var CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
 
   // ─── HELPERS ─────────────────────────────────────────────────────────────
   function consentGiven() {
@@ -72,19 +36,21 @@
     });
   }
 
-  // SHA-256 hashing pour Meta CAPI (PII)
   async function sha256(text) {
-    if (!text) return null;
-    var normalized = text.trim().toLowerCase();
-    if (!window.crypto || !window.crypto.subtle) return null;
-    var buffer = new TextEncoder().encode(normalized);
+    if (!text || !window.crypto || !window.crypto.subtle) return null;
+    var buffer = new TextEncoder().encode(text.trim().toLowerCase());
     var hash = await window.crypto.subtle.digest('SHA-256', buffer);
     return Array.from(new Uint8Array(hash))
       .map(function (b) { return b.toString(16).padStart(2, '0'); })
       .join('');
   }
 
-  // ─── CAPTURE UTM + CLICK IDS (au chargement) ────────────────────────────
+  function getCookie(name) {
+    var v = ('; ' + document.cookie).split('; ' + name + '=');
+    return v.length === 2 ? v.pop().split(';').shift() : null;
+  }
+
+  // ─── ATTRIBUTION (UTM + click IDs persistés) ────────────────────────────
   function captureAttribution() {
     try {
       var params = new URLSearchParams(location.search);
@@ -108,51 +74,65 @@
   }
   var ATTR = captureAttribution();
 
-  // ─── 1. Google Tag Manager (déjà présent — wrapper pour cohérence) ───────
-  function loadGTM() {
-    if (!CONFIG.ENABLE.gtm) return;
-    if (window.google_tag_manager) return; // déjà chargé
+  // ─── CONFIG : fetch + cache ─────────────────────────────────────────────
+  async function fetchConfig() {
+    try {
+      var cached = localStorage.getItem(CACHE_KEY);
+      if (cached) {
+        var parsed = JSON.parse(cached);
+        if (parsed && Date.now() - parsed.fetched_at < CACHE_TTL_MS) {
+          return parsed.config;
+        }
+      }
+    } catch (_) {}
+
+    try {
+      var res = await fetch(CONFIG_ENDPOINT);
+      if (!res.ok) throw new Error('Config fetch failed');
+      var json = await res.json();
+      try {
+        localStorage.setItem(CACHE_KEY, JSON.stringify({ config: json.config || {}, fetched_at: Date.now() }));
+      } catch (_) {}
+      return json.config || {};
+    } catch (err) {
+      console.warn('Tracking config fetch failed', err);
+      return {};
+    }
+  }
+
+  // ─── 1. Google Tag Manager ──────────────────────────────────────────────
+  function loadGTM(gtmId) {
+    if (!gtmId || window.__gtmLoaded) return;
+    window.__gtmLoaded = true;
     (function (w, d, s, l, i) {
       w[l] = w[l] || []; w[l].push({ 'gtm.start': new Date().getTime(), event: 'gtm.js' });
       var f = d.getElementsByTagName(s)[0],
           j = d.createElement(s), dl = l !== 'dataLayer' ? '&l=' + l : '';
       j.async = true; j.src = 'https://www.googletagmanager.com/gtm.js?id=' + i + dl;
       f.parentNode.insertBefore(j, f);
-    })(window, document, 'script', 'dataLayer', CONFIG.GTM_ID);
+    })(window, document, 'script', 'dataLayer', gtmId);
   }
 
   // ─── 2. Google Analytics 4 + Google Ads ─────────────────────────────────
-  function loadGoogleTags() {
-    if (!CONFIG.ENABLE.ga4 && !CONFIG.ENABLE.gads) return;
-    var primaryId = CONFIG.ENABLE.ga4 ? CONFIG.GA4_ID : CONFIG.GADS_CONVERSION_ID;
-    if (!primaryId || primaryId.indexOf('XXXXXXXXX') !== -1) return;
+  function loadGoogleTags(ga4Id, gadsId) {
+    var primary = ga4Id || gadsId;
+    if (!primary || window.__gtagLoaded) return;
+    window.__gtagLoaded = true;
 
     var s = document.createElement('script');
-    s.async = true;
-    s.src = 'https://www.googletagmanager.com/gtag/js?id=' + primaryId;
+    s.async = true; s.src = 'https://www.googletagmanager.com/gtag/js?id=' + primary;
     document.head.appendChild(s);
 
     window.dataLayer = window.dataLayer || [];
     window.gtag = function () { window.dataLayer.push(arguments); };
     gtag('js', new Date());
-
-    if (CONFIG.ENABLE.ga4 && CONFIG.GA4_ID && CONFIG.GA4_ID.indexOf('X') === -1) {
-      gtag('config', CONFIG.GA4_ID, {
-        send_page_view: true,
-        anonymize_ip: true,
-        page_path: location.pathname + location.search,
-      });
-    }
-    if (CONFIG.ENABLE.gads && CONFIG.GADS_CONVERSION_ID && CONFIG.GADS_CONVERSION_ID.indexOf('X') === -1) {
-      gtag('config', CONFIG.GADS_CONVERSION_ID);
-    }
+    if (ga4Id) gtag('config', ga4Id, { anonymize_ip: true, send_page_view: true });
+    if (gadsId) gtag('config', gadsId);
   }
 
   // ─── 3. Meta Pixel ───────────────────────────────────────────────────────
-  function loadMetaPixel() {
-    if (!CONFIG.ENABLE.meta_pixel) return;
-    if (!CONFIG.META_PIXEL_ID || CONFIG.META_PIXEL_ID.indexOf('0000') === 0) return;
-
+  function loadMetaPixel(pixelId) {
+    if (!pixelId || window.fbq) return;
     !function (f, b, e, v, n, t, s) {
       if (f.fbq) return; n = f.fbq = function () {
         n.callMethod ? n.callMethod.apply(n, arguments) : n.queue.push(arguments);
@@ -161,45 +141,37 @@
       n.queue = []; t = b.createElement(e); t.async = !0;
       t.src = v; s = b.getElementsByTagName(e)[0]; s.parentNode.insertBefore(t, s);
     }(window, document, 'script', 'https://connect.facebook.net/en_US/fbevents.js');
-
-    fbq('init', CONFIG.META_PIXEL_ID);
+    fbq('init', pixelId);
     fbq('track', 'PageView');
   }
 
   // ─── 4. TikTok Pixel ────────────────────────────────────────────────────
-  function loadTikTokPixel() {
-    if (!CONFIG.ENABLE.tiktok) return;
-    if (!CONFIG.TIKTOK_PIXEL_ID || CONFIG.TIKTOK_PIXEL_ID.indexOf('XXXX') !== -1) return;
-
+  function loadTikTokPixel(id) {
+    if (!id || window.ttq) return;
     !function (w, d, t) {
       w.TiktokAnalyticsObject = t; var ttq = w[t] = w[t] || [];
       ttq.methods = ['page','track','identify','instances','debug','on','off','once','ready','alias','group','enableCookie','disableCookie','holdConsent','revokeConsent','grantConsent'];
       ttq.setAndDefer = function (t, e) { t[e] = function () { t.push([e].concat(Array.prototype.slice.call(arguments, 0))); }; };
       for (var i = 0; i < ttq.methods.length; i++) ttq.setAndDefer(ttq, ttq.methods[i]);
-      ttq.instance = function (t) {
-        for (var e = ttq._i[t] || [], n = 0; n < ttq.methods.length; n++) ttq.setAndDefer(e, ttq.methods[n]);
-        return e;
-      };
+      ttq.instance = function (t) { for (var e = ttq._i[t] || [], n = 0; n < ttq.methods.length; n++) ttq.setAndDefer(e, ttq.methods[n]); return e; };
       ttq.load = function (e, n) {
-        var r = 'https://analytics.tiktok.com/i18n/pixel/events.js', o = n && n.partner;
+        var r = 'https://analytics.tiktok.com/i18n/pixel/events.js';
         ttq._i = ttq._i || {}; ttq._i[e] = []; ttq._i[e]._u = r;
         ttq._t = ttq._t || {}; ttq._t[e] = +new Date(); ttq._o = ttq._o || {}; ttq._o[e] = n || {};
         var i = d.createElement('script'); i.type = 'text/javascript'; i.async = !0;
         i.src = r + '?sdkid=' + e + '&lib=' + t;
         var a = d.getElementsByTagName('script')[0]; a.parentNode.insertBefore(i, a);
       };
-      ttq.load(CONFIG.TIKTOK_PIXEL_ID); ttq.page();
+      ttq.load(id); ttq.page();
     }(window, document, 'ttq');
   }
 
   // ─── 5. LinkedIn Insight Tag ────────────────────────────────────────────
-  function loadLinkedIn() {
-    if (!CONFIG.ENABLE.linkedin) return;
-    if (!CONFIG.LINKEDIN_PARTNER_ID || CONFIG.LINKEDIN_PARTNER_ID.indexOf('0') === 0) return;
-
-    window._linkedin_partner_id = CONFIG.LINKEDIN_PARTNER_ID;
+  function loadLinkedIn(partnerId) {
+    if (!partnerId || window._linkedin_partner_id) return;
+    window._linkedin_partner_id = partnerId;
     window._linkedin_data_partner_ids = window._linkedin_data_partner_ids || [];
-    window._linkedin_data_partner_ids.push(CONFIG.LINKEDIN_PARTNER_ID);
+    window._linkedin_data_partner_ids.push(partnerId);
     (function (l) {
       if (!l) {
         window.lintrk = function (a, b) { window.lintrk.q.push([a, b]); };
@@ -213,78 +185,99 @@
     })(window.lintrk);
   }
 
-  // ─── 6. Microsoft Clarity (heatmaps, gratuit) ───────────────────────────
-  function loadClarity() {
-    if (!CONFIG.ENABLE.clarity) return;
-    if (!CONFIG.CLARITY_ID || CONFIG.CLARITY_ID.indexOf('XXXX') !== -1) return;
-
+  // ─── 6. Microsoft Clarity ───────────────────────────────────────────────
+  function loadClarity(id) {
+    if (!id || window.clarity) return;
     (function (c, l, a, r, i, t, y) {
       c[a] = c[a] || function () { (c[a].q = c[a].q || []).push(arguments); };
       t = l.createElement(r); t.async = 1; t.src = 'https://www.clarity.ms/tag/' + i;
       y = l.getElementsByTagName(r)[0]; y.parentNode.insertBefore(t, y);
-    })(window, document, 'clarity', 'script', CONFIG.CLARITY_ID);
+    })(window, document, 'clarity', 'script', id);
   }
 
-  // ─── INIT (au chargement, après consentement) ───────────────────────────
-  function initAll() {
+  // ─── 7. Hotjar ──────────────────────────────────────────────────────────
+  function loadHotjar(id) {
+    if (!id || window.hj) return;
+    (function(h,o,t,j,a,r){
+      h.hj=h.hj||function(){(h.hj.q=h.hj.q||[]).push(arguments)};
+      h._hjSettings={hjid:id,hjsv:6};
+      a=o.getElementsByTagName('head')[0];
+      r=o.createElement('script');r.async=1;
+      r.src=t+h._hjSettings.hjid+j+h._hjSettings.hjsv;
+      a.appendChild(r);
+    })(window,document,'https://static.hotjar.com/c/hotjar-',  '.js?sv=');
+  }
+
+  // ─── 8. HubSpot tracking ────────────────────────────────────────────────
+  function loadHubSpot(hubId) {
+    if (!hubId || window.HubSpotConversations) return;
+    var s = document.createElement('script');
+    s.type = 'text/javascript'; s.id = 'hs-script-loader'; s.async = true; s.defer = true;
+    s.src = '//js.hs-scripts.com/' + hubId + '.js';
+    document.head.appendChild(s);
+  }
+
+  // ─── 9. Sentry (errors) ─────────────────────────────────────────────────
+  function loadSentry(dsn) {
+    if (!dsn || window.Sentry) return;
+    var s = document.createElement('script');
+    s.src = 'https://browser.sentry-cdn.com/7.99.0/bundle.min.js';
+    s.crossOrigin = 'anonymous';
+    s.onload = function () {
+      window.Sentry.init({ dsn: dsn, tracesSampleRate: 0.1 });
+    };
+    document.head.appendChild(s);
+  }
+
+  // ─── INIT (orchestrateur) ───────────────────────────────────────────────
+  var CONFIG = {};
+  async function initAll() {
     if (!consentGiven()) return;
-    loadGTM();
-    loadGoogleTags();
-    loadMetaPixel();
-    loadTikTokPixel();
-    loadLinkedIn();
-    loadClarity();
+    CONFIG = await fetchConfig();
+
+    loadGTM(CONFIG.gtm_id);
+    loadGoogleTags(CONFIG.ga4_id, CONFIG.gads_conversion_id);
+    loadMetaPixel(CONFIG.meta_pixel_id);
+    loadTikTokPixel(CONFIG.tiktok_pixel_id);
+    loadLinkedIn(CONFIG.linkedin_partner_id);
+    loadClarity(CONFIG.clarity_id);
+    loadHotjar(CONFIG.hotjar_id);
+    loadHubSpot(CONFIG.hubspot_hub_id);
+    loadSentry(CONFIG.sentry_dsn);
   }
 
   // ─── ÉVÉNEMENTS DE CONVERSION (API publique) ────────────────────────────
-  // Usage : window.IMMOTrack.lead({ email, phone, name, value, currency })
   window.IMMOTrack = {
-    /**
-     * Conversion principale : un visiteur a soumis le formulaire de démo.
-     * Émet vers GA4, Google Ads, Meta Pixel + envoie à Meta CAPI (server-side)
-     * pour la déduplication.
-     */
+    /** Conversion principale — soumission formulaire complet */
     lead: async function (data) {
       data = data || {};
       var eventId = uuid();
       var value = data.value || 0;
       var currency = data.currency || 'EUR';
 
-      // GA4
       if (window.gtag) {
         gtag('event', 'generate_lead', {
-          event_id: eventId,
-          value: value, currency: currency,
+          event_id: eventId, value: value, currency: currency,
           form_destination: data.form_destination || 'contact',
         });
+        if (CONFIG.gads_conversion_id && CONFIG.gads_conversion_label) {
+          gtag('event', 'conversion', {
+            send_to: CONFIG.gads_conversion_id + '/' + CONFIG.gads_conversion_label,
+            value: value, currency: currency, transaction_id: eventId,
+          });
+        }
       }
-      // Google Ads conversion
-      if (window.gtag && CONFIG.GADS_CONVERSION_ID && CONFIG.GADS_CONVERSION_ID.indexOf('X') === -1) {
-        gtag('event', 'conversion', {
-          send_to: CONFIG.GADS_CONVERSION_ID + '/' + CONFIG.GADS_CONVERSION_LABEL,
-          value: value, currency: currency,
-          transaction_id: eventId,
-        });
-      }
-      // Meta Pixel
-      if (window.fbq) {
-        fbq('track', 'Lead', { value: value, currency: currency }, { eventID: eventId });
-      }
-      // TikTok
-      if (window.ttq) {
-        ttq.track('SubmitForm', { value: value, currency: currency, event_id: eventId });
-      }
-      // LinkedIn
-      if (window.lintrk) {
-        lintrk('track', { conversion_id: 0 }); // mettre votre conversion_id LinkedIn
-      }
-      // Meta Conversions API (server-side — pour iOS 14+ et bloqueurs)
-      if (CONFIG.ENABLE.meta_capi && CONFIG.META_CAPI_ENDPOINT) {
+      if (window.fbq) fbq('track', 'Lead', { value: value, currency: currency }, { eventID: eventId });
+      if (window.ttq) ttq.track('SubmitForm', { value: value, currency: currency, event_id: eventId });
+      if (window.lintrk && CONFIG.linkedin_conversion_id) lintrk('track', { conversion_id: CONFIG.linkedin_conversion_id });
+
+      // Meta Conversions API server-side (dédup avec event_id)
+      if (CONFIG.meta_pixel_id) {
         try {
           var hashedEmail = await sha256(data.email);
           var hashedPhone = await sha256((data.phone || '').replace(/[^0-9]/g, ''));
           var hashedName = await sha256(data.name);
-          fetch(CONFIG.META_CAPI_ENDPOINT, {
+          fetch(CAPI_ENDPOINT, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -297,7 +290,6 @@
                 em: hashedEmail ? [hashedEmail] : [],
                 ph: hashedPhone ? [hashedPhone] : [],
                 fn: hashedName ? [hashedName] : [],
-                client_user_agent: navigator.userAgent,
                 fbp: getCookie('_fbp'),
                 fbc: getCookie('_fbc'),
               },
@@ -311,44 +303,52 @@
           }).catch(function (e) { console.warn('CAPI failed', e); });
         } catch (e) { console.warn('CAPI hash failed', e); }
       }
+
+      // WhatsApp auto-message au lead (server-side)
+      if (data.phone && CONFIG.whatsapp_phone_id) {
+        try {
+          fetch(WHATSAPP_ENDPOINT, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              to: data.phone,
+              language: 'fr',
+              template_params: [data.name || 'Bonjour'],
+              text: 'Bonjour ' + (data.name || '') + ', merci pour votre demande IMMO PRO-X. Notre équipe vous recontacte sous 24 h ouvrées. À très vite !',
+            }),
+            keepalive: true,
+          }).catch(function (e) { console.warn('WhatsApp failed', e); });
+        } catch (_) {}
+      }
+
       return eventId;
     },
 
-    /** Click sur un CTA majeur (Demander une démo, Réserver un créneau, etc.) */
     click_cta: function (label, location_hint) {
       if (window.gtag) gtag('event', 'click_cta', { cta_label: label, cta_location: location_hint || '' });
       if (window.fbq) fbq('trackCustom', 'ClickCTA', { label: label, location: location_hint });
     },
 
-    /** Click sur lien WhatsApp / Email / Téléphone */
     contact_intent: function (channel) {
       if (window.gtag) gtag('event', 'contact_intent', { channel: channel });
       if (window.fbq) fbq('track', 'Contact', { channel: channel });
     },
 
-    /** Démarrage de la prise de RDV Cal.eu */
     schedule: function () {
       if (window.gtag) gtag('event', 'schedule', { method: 'cal' });
       if (window.fbq) fbq('track', 'Schedule');
     },
 
-    /** Démarrage du formulaire (1er champ focus) — pour mesurer l'intent */
     form_start: function (form_name) {
       if (window.gtag) gtag('event', 'form_start', { form_name: form_name });
     },
 
-    /** Étape complétée (multi-step form) */
     form_step: function (form_name, step) {
       if (window.gtag) gtag('event', 'form_step', { form_name: form_name, step: step });
     },
   };
 
-  function getCookie(name) {
-    var v = ('; ' + document.cookie).split('; ' + name + '=');
-    return v.length === 2 ? v.pop().split(';').shift() : null;
-  }
-
-  // ─── AUTO-WIRING (clics CTA détectés via attributs data-) ───────────────
+  // ─── AUTO-WIRING (clics CTA détectés via attributs) ─────────────────────
   function wireAutoTracking() {
     document.addEventListener('click', function (e) {
       var el = e.target.closest('[data-cta], a[href^="https://wa.me"], a[href^="mailto:"], a[href^="tel:"], a[href*="cal.eu"]');
@@ -362,7 +362,6 @@
       else if (href.indexOf('cal.eu') !== -1) IMMOTrack.schedule();
     }, { passive: true });
 
-    // form_start sur premier focus
     document.querySelectorAll('form').forEach(function (form) {
       var started = false;
       form.addEventListener('focusin', function () {
@@ -380,10 +379,6 @@
     initAll();
     wireAutoTracking();
   }
-
-  // Re-initialiser quand le user accepte le cookie banner (custom event)
   window.addEventListener('cookie-consent-given', initAll);
-
-  // Exposer la config en debug
-  window.__IMMOTrackConfig = CONFIG;
+  window.__IMMOTrackConfig = function () { return CONFIG; };
 })();

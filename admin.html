@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin · Intégrations — IMMO PRO-X</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{--blue:#0579DA;--blue-d:#0460B8;--green:#00D4A0;--red:#EF4444;--orange:#F59E0B;--dark:#0A2540;--gray:#425466;--muted:#8898AA;--light:#F6F9FC;--border:#E3E8EF;--white:#FFF}
+    body{font-family:'Inter',-apple-system,sans-serif;background:var(--light);color:var(--dark);min-height:100vh}
+    a{color:var(--blue);text-decoration:none}
+    a:hover{text-decoration:underline}
+
+    /* ── Auth screen ── */
+    .auth-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;background:linear-gradient(165deg,#050D1A 0%,#0A2540 50%,#0579DA 100%)}
+    .auth-card{background:#fff;border-radius:18px;padding:40px;width:100%;max-width:400px;box-shadow:0 20px 60px rgba(0,0,0,.2)}
+    .auth-card h1{font-size:22px;font-weight:800;margin-bottom:4px;text-align:center}
+    .auth-card .subtitle{font-size:13px;color:var(--gray);text-align:center;margin-bottom:24px}
+    .auth-card label{display:block;font-size:12px;font-weight:600;color:var(--gray);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px}
+    .auth-card input{width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:14px;font-family:inherit;margin-bottom:14px;transition:border-color .2s}
+    .auth-card input:focus{outline:none;border-color:var(--blue)}
+    .auth-card button{width:100%;padding:13px;background:var(--blue);color:#fff;border:none;border-radius:10px;font-weight:700;font-size:14px;cursor:pointer;transition:background .2s}
+    .auth-card button:hover{background:var(--blue-d)}
+    .auth-card button:disabled{opacity:.6;cursor:not-allowed}
+    .auth-error{margin-top:14px;padding:10px 14px;background:rgba(239,68,68,.08);color:var(--red);font-size:13px;border-radius:8px;display:none}
+    .auth-error.show{display:block}
+
+    /* ── Main shell ── */
+    .shell{display:none;min-height:100vh}
+    .shell.show{display:block}
+    .topbar{background:#fff;border-bottom:1px solid var(--border);padding:14px 24px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:10}
+    .topbar-l{display:flex;align-items:center;gap:12px;font-weight:800}
+    .topbar-l img{width:28px;height:28px;border-radius:7px}
+    .topbar-l .badge{font-size:11px;padding:3px 8px;background:var(--blue);color:#fff;border-radius:6px;letter-spacing:.5px;font-weight:700}
+    .topbar-r{display:flex;align-items:center;gap:14px;font-size:13px;color:var(--gray)}
+    .topbar-r button{padding:8px 14px;background:transparent;border:1px solid var(--border);border-radius:8px;cursor:pointer;font-size:13px;color:var(--gray);font-family:inherit;transition:all .2s}
+    .topbar-r button:hover{border-color:var(--blue);color:var(--blue)}
+
+    .main{max-width:1200px;margin:0 auto;padding:32px 24px 80px}
+    .page-h{margin-bottom:32px}
+    .page-h h1{font-size:28px;font-weight:900;letter-spacing:-.5px;margin-bottom:6px}
+    .page-h p{font-size:14px;color:var(--gray)}
+
+    .cat-tabs{display:flex;gap:4px;margin-bottom:24px;background:#fff;padding:6px;border-radius:12px;border:1px solid var(--border);overflow-x:auto;-webkit-overflow-scrolling:touch}
+    .cat-tab{padding:9px 18px;background:transparent;border:none;border-radius:8px;font-weight:600;font-size:13px;cursor:pointer;color:var(--gray);font-family:inherit;white-space:nowrap;transition:all .2s}
+    .cat-tab:hover{color:var(--dark)}
+    .cat-tab.active{background:var(--blue);color:#fff}
+    .cat-tab .count{font-size:11px;opacity:.8;margin-left:4px}
+
+    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:18px}
+    .card{background:#fff;border:1px solid var(--border);border-radius:14px;padding:22px;display:flex;flex-direction:column;gap:14px;transition:border-color .2s}
+    .card:hover{border-color:#cbd5e1}
+    .card-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+    .card-title{font-weight:700;font-size:15px;color:var(--dark)}
+    .card-cat{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px}
+    .card-desc{font-size:12px;color:var(--gray);line-height:1.5;margin-top:-6px}
+    .status{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;padding:4px 10px;border-radius:999px;flex-shrink:0}
+    .status::before{content:'';width:6px;height:6px;border-radius:50%}
+    .status.on{background:rgba(0,212,160,.1);color:var(--green)}
+    .status.on::before{background:var(--green);box-shadow:0 0 0 3px rgba(0,212,160,.18)}
+    .status.off{background:rgba(136,152,170,.12);color:var(--muted)}
+    .status.off::before{background:var(--muted)}
+    .status.secret{background:rgba(245,158,11,.1);color:var(--orange)}
+    .status.secret::before{background:var(--orange)}
+
+    .field input{width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:9px;font-size:13px;font-family:'JetBrains Mono',Menlo,monospace;transition:border-color .2s}
+    .field input:focus{outline:none;border-color:var(--blue)}
+    .field input.has-value{background:rgba(0,212,160,.04);border-color:rgba(0,212,160,.4)}
+
+    .actions{display:flex;gap:8px;margin-top:auto}
+    .btn{padding:9px 14px;border-radius:8px;font-size:12px;font-weight:700;border:none;cursor:pointer;font-family:inherit;transition:all .2s;display:inline-flex;align-items:center;gap:6px}
+    .btn-pri{background:var(--blue);color:#fff;flex:1;justify-content:center}
+    .btn-pri:hover{background:var(--blue-d)}
+    .btn-sec{background:#fff;color:var(--gray);border:1px solid var(--border)}
+    .btn-sec:hover{border-color:var(--blue);color:var(--blue)}
+    .btn-toggle{padding:7px 12px;border-radius:8px;border:1px solid var(--border);background:#fff;cursor:pointer;font-size:11px;font-weight:700;color:var(--gray);font-family:inherit;transition:all .2s}
+    .btn-toggle.on{background:var(--green);color:#fff;border-color:var(--green)}
+
+    .doc-link{font-size:11px;color:var(--blue);font-weight:600}
+    .feedback{font-size:12px;padding:8px 12px;border-radius:8px;display:none}
+    .feedback.show{display:block}
+    .feedback.ok{background:rgba(0,212,160,.08);color:var(--green)}
+    .feedback.err{background:rgba(239,68,68,.08);color:var(--red)}
+
+    .toast{position:fixed;bottom:24px;right:24px;background:var(--dark);color:#fff;padding:14px 22px;border-radius:10px;font-size:13px;box-shadow:0 8px 24px rgba(0,0,0,.18);transform:translateY(80px);opacity:0;transition:all .3s;z-index:100}
+    .toast.show{transform:translateY(0);opacity:1}
+    .toast.ok{background:var(--green)}
+    .toast.err{background:var(--red)}
+
+    @media(max-width:640px){
+      .main{padding:20px 16px 60px}
+      .grid{grid-template-columns:1fr}
+      .topbar{padding:12px 16px}
+      .topbar-r .user-email{display:none}
+    }
+  </style>
+</head>
+<body>
+
+<!-- ─── Login screen ─── -->
+<div class="auth-wrap" id="auth-screen">
+  <form class="auth-card" id="auth-form">
+    <div style="text-align:center;margin-bottom:18px">
+      <img src="/favicon.png" alt="IMMO PRO-X" width="44" height="44" style="border-radius:10px">
+    </div>
+    <h1>Admin Console</h1>
+    <p class="subtitle">Connectez-vous pour gérer les intégrations</p>
+    <label for="auth-email">Email</label>
+    <input type="email" id="auth-email" required autocomplete="email" placeholder="vous@immoprox.io">
+    <label for="auth-pass">Mot de passe</label>
+    <input type="password" id="auth-pass" required autocomplete="current-password" placeholder="••••••••">
+    <button type="submit" id="auth-btn">Se connecter</button>
+    <div class="auth-error" id="auth-err"></div>
+    <p class="subtitle" style="margin-top:18px;font-size:11px">Sécurisé via Supabase Auth · Accès admin uniquement</p>
+  </form>
+</div>
+
+<!-- ─── Main app ─── -->
+<div class="shell" id="shell">
+  <div class="topbar">
+    <div class="topbar-l">
+      <img src="/favicon.png" alt="">
+      <span>IMMO <span style="color:var(--blue)">PRO-X</span></span>
+      <span class="badge">ADMIN</span>
+    </div>
+    <div class="topbar-r">
+      <span class="user-email" id="user-email"></span>
+      <button id="logout-btn">Déconnexion</button>
+    </div>
+  </div>
+
+  <main class="main">
+    <div class="page-h">
+      <h1>Intégrations</h1>
+      <p>Gérez tous vos pixels, tokens et clés d'API depuis cette page. Les modifications sont actives en moins de 5 minutes.</p>
+    </div>
+
+    <div class="cat-tabs" id="cat-tabs"></div>
+    <div class="grid" id="grid"></div>
+  </main>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+  import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.0';
+
+  // ─── Supabase config ────────────────────────────────────────────────────
+  const SUPABASE_URL = 'https://lbnqccsebwiifxcucflg.supabase.co';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxibnFjY3NlYndpaWZ4Y3VjZmxnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU3NjQyMDgsImV4cCI6MjA5MTM0MDIwOH0.lo0cNBXpBTbvcxyCtTRjKtPA8I2XAP9Nuj0Xo9Ehjmw';
+  const ADMIN_API = SUPABASE_URL + '/functions/v1/admin-config';
+
+  const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  // ─── DOM helpers ────────────────────────────────────────────────────────
+  const $ = (sel) => document.querySelector(sel);
+  const $$ = (sel) => Array.from(document.querySelectorAll(sel));
+  const toast = (msg, kind = 'ok') => {
+    const el = $('#toast');
+    el.textContent = msg;
+    el.className = 'toast show ' + kind;
+    setTimeout(() => el.classList.remove('show'), 3500);
+  };
+
+  // ─── Auth flow ──────────────────────────────────────────────────────────
+  async function checkSession() {
+    const { data } = await sb.auth.getSession();
+    if (data.session) {
+      // Vérifier que l'utilisateur est admin
+      const { data: isAdmin } = await sb.rpc('is_admin');
+      if (!isAdmin) {
+        await sb.auth.signOut();
+        showLogin('Votre compte n\'est pas administrateur.');
+        return;
+      }
+      $('#user-email').textContent = data.session.user.email || '';
+      showApp();
+      await loadIntegrations();
+    } else {
+      showLogin();
+    }
+  }
+
+  function showLogin(error = '') {
+    $('#auth-screen').style.display = 'flex';
+    $('#shell').classList.remove('show');
+    if (error) {
+      $('#auth-err').textContent = error;
+      $('#auth-err').classList.add('show');
+    }
+  }
+  function showApp() {
+    $('#auth-screen').style.display = 'none';
+    $('#shell').classList.add('show');
+  }
+
+  $('#auth-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const email = $('#auth-email').value.trim();
+    const password = $('#auth-pass').value;
+    const btn = $('#auth-btn');
+    btn.disabled = true; btn.textContent = 'Connexion...';
+    $('#auth-err').classList.remove('show');
+    try {
+      const { error } = await sb.auth.signInWithPassword({ email, password });
+      if (error) throw error;
+      await checkSession();
+    } catch (err) {
+      $('#auth-err').textContent = err.message || 'Échec de connexion';
+      $('#auth-err').classList.add('show');
+    } finally {
+      btn.disabled = false; btn.textContent = 'Se connecter';
+    }
+  });
+
+  $('#logout-btn').addEventListener('click', async () => {
+    await sb.auth.signOut();
+    location.reload();
+  });
+
+  // ─── Load integrations ──────────────────────────────────────────────────
+  let allItems = [];
+  let activeCat = 'analytics';
+
+  async function loadIntegrations() {
+    try {
+      const { data: { session } } = await sb.auth.getSession();
+      const res = await fetch(ADMIN_API, {
+        headers: { Authorization: 'Bearer ' + session.access_token },
+      });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const json = await res.json();
+      allItems = json.items || [];
+      renderTabs();
+      renderGrid();
+    } catch (err) {
+      console.error(err);
+      toast('Erreur de chargement : ' + err.message, 'err');
+    }
+  }
+
+  const CAT_LABELS = {
+    analytics:     'Analytics',
+    ads:           'Publicité (Ads)',
+    communication: 'Communication',
+    crm:           'CRM',
+    monitoring:    'Monitoring',
+  };
+
+  function renderTabs() {
+    const cats = [...new Set(allItems.map((i) => i.category))];
+    cats.sort();
+    if (!cats.includes(activeCat)) activeCat = cats[0];
+    $('#cat-tabs').innerHTML = cats.map((c) => {
+      const count = allItems.filter((i) => i.category === c).length;
+      const enabled = allItems.filter((i) => i.category === c && i.enabled).length;
+      return `<button class="cat-tab ${c === activeCat ? 'active' : ''}" data-cat="${c}">
+        ${CAT_LABELS[c] || c} <span class="count">${enabled}/${count}</span>
+      </button>`;
+    }).join('');
+    $$('.cat-tab').forEach((t) => t.addEventListener('click', () => {
+      activeCat = t.dataset.cat;
+      renderTabs(); renderGrid();
+    }));
+  }
+
+  function renderGrid() {
+    const items = allItems.filter((i) => i.category === activeCat);
+    $('#grid').innerHTML = items.map(itemCard).join('');
+    items.forEach((item) => wireCard(item));
+  }
+
+  function itemCard(item) {
+    const status = item.enabled ? '<span class="status on">Activé</span>' :
+                   item.has_value ? '<span class="status off">Configuré · inactif</span>' :
+                                    '<span class="status off">Non configuré</span>';
+    const secretBadge = item.is_secret ? '<span class="status secret">🔒 Secret</span>' : '';
+    return `
+    <div class="card" data-key="${item.key}">
+      <div class="card-head">
+        <div>
+          <div class="card-cat">${CAT_LABELS[item.category] || item.category}</div>
+          <div class="card-title">${escape(item.label)}</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:4px;align-items:flex-end">
+          ${status}
+          ${secretBadge}
+        </div>
+      </div>
+      ${item.description ? `<div class="card-desc">${escape(item.description)}</div>` : ''}
+      <div class="field">
+        <input type="${item.is_secret ? 'password' : 'text'}"
+               value="${escape(item.value || '')}"
+               placeholder="${item.is_secret ? 'Token / clé secrète' : 'Valeur'}"
+               data-input="${item.key}">
+      </div>
+      <div class="feedback" data-feedback="${item.key}"></div>
+      <div class="actions">
+        <button class="btn btn-pri" data-action="save" data-key="${item.key}">Enregistrer</button>
+        <button class="btn btn-sec" data-action="test" data-key="${item.key}">Tester</button>
+        <button class="btn-toggle ${item.enabled ? 'on' : ''}" data-action="toggle" data-key="${item.key}">
+          ${item.enabled ? 'ON' : 'OFF'}
+        </button>
+      </div>
+      ${item.doc_url ? `<a href="${item.doc_url}" target="_blank" rel="noopener" class="doc-link">📖 Documentation →</a>` : ''}
+    </div>`;
+  }
+
+  function wireCard(item) {
+    const card = document.querySelector(`.card[data-key="${item.key}"]`);
+    const input = card.querySelector('input');
+    input.addEventListener('input', () => {
+      input.classList.toggle('has-value', !!input.value);
+    });
+    if (input.value) input.classList.add('has-value');
+
+    card.querySelectorAll('[data-action]').forEach((btn) => {
+      btn.addEventListener('click', () => handleAction(btn.dataset.action, item.key, card));
+    });
+  }
+
+  async function handleAction(action, key, card) {
+    const fb = card.querySelector('[data-feedback]');
+    fb.classList.remove('show', 'ok', 'err');
+
+    try {
+      const { data: { session } } = await sb.auth.getSession();
+      const auth = { Authorization: 'Bearer ' + session.access_token, 'Content-Type': 'application/json' };
+
+      if (action === 'save') {
+        const value = card.querySelector('input').value.trim();
+        const res = await fetch(ADMIN_API, {
+          method: 'PATCH', headers: auth,
+          body: JSON.stringify({ key, value }),
+        });
+        if (!res.ok) throw new Error((await res.json()).error || 'Erreur');
+        toast('Enregistré ✓', 'ok');
+        await loadIntegrations();
+      }
+
+      if (action === 'toggle') {
+        const item = allItems.find((i) => i.key === key);
+        const res = await fetch(ADMIN_API, {
+          method: 'PATCH', headers: auth,
+          body: JSON.stringify({ key, enabled: !item.enabled }),
+        });
+        if (!res.ok) throw new Error((await res.json()).error || 'Erreur');
+        toast(item.enabled ? 'Désactivé' : 'Activé ✓', 'ok');
+        await loadIntegrations();
+      }
+
+      if (action === 'test') {
+        const res = await fetch(ADMIN_API + '/test', {
+          method: 'POST', headers: auth,
+          body: JSON.stringify({ key }),
+        });
+        const json = await res.json();
+        fb.textContent = json.message || (json.ok ? 'OK ✓' : 'Erreur');
+        fb.classList.add('show', json.ok ? 'ok' : 'err');
+      }
+    } catch (err) {
+      toast(err.message, 'err');
+      fb.textContent = err.message;
+      fb.classList.add('show', 'err');
+    }
+  }
+
+  function escape(s) { return String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c])); }
+
+  // ─── Init ───────────────────────────────────────────────────────────────
+  checkSession();
+</script>
+
+</body>
+</html>
