@@ -315,9 +315,19 @@
       // Meta Conversions API server-side (dédup avec event_id)
       if (CONFIG.meta_pixel_id) {
         try {
+          // Split du nom complet en prénom + nom (pour EMQ Meta optimal)
+          var nameParts = (data.name || '').trim().split(/\s+/);
+          var firstName = nameParts[0] || '';
+          var lastName = nameParts.slice(1).join(' ') || '';
+
           var hashedEmail = await sha256(data.email);
           var hashedPhone = await sha256((data.phone || '').replace(/[^0-9]/g, ''));
-          var hashedName = await sha256(data.name);
+          var hashedFirstName = await sha256(firstName);
+          var hashedLastName = await sha256(lastName);
+          var hashedCountry = await sha256(data.country || 'dz');
+          var hashedState = await sha256(data.state || data.wilaya || '');
+          var hashedCity = await sha256(data.city || '');
+
           fetch(CAPI_ENDPOINT, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -330,7 +340,12 @@
               user_data: {
                 em: hashedEmail ? [hashedEmail] : [],
                 ph: hashedPhone ? [hashedPhone] : [],
-                fn: hashedName ? [hashedName] : [],
+                fn: hashedFirstName ? [hashedFirstName] : [],
+                ln: hashedLastName ? [hashedLastName] : [],
+                country: hashedCountry ? [hashedCountry] : [],
+                st: hashedState ? [hashedState] : [],
+                ct: hashedCity ? [hashedCity] : [],
+                external_id: data.external_id ? [String(data.external_id)] : [],
                 fbp: getCookie('_fbp'),
                 fbc: getCookie('_fbc'),
               },

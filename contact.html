@@ -545,11 +545,16 @@ form2.addEventListener('submit', async (e) => {
     // Voir tracking.js pour la configuration des IDs.
     if (window.IMMOTrack) {
       try {
+        // Récupère la 1ère wilaya saisie (pour le st de Meta CAPI)
+        const firstWilaya = wilayas[0] || ''
         await window.IMMOTrack.lead({
           email: form1.email.value.trim().toLowerCase(),
           phone: form1.phone.value.trim(),
           name: form1.full_name.value.trim(),
-          value: 25,                  // valeur estimée d'un lead (à ajuster selon LTV)
+          state: firstWilaya,           // EMQ Meta : région/wilaya
+          country: 'dz',                 // EMQ Meta : Algérie par défaut (ISO 3166-1 alpha-2)
+          external_id: leadId,           // EMQ Meta : ID Supabase unique
+          value: 25,                     // valeur estimée d'un lead (à ajuster selon LTV)
           currency: 'EUR',
           form_destination: 'contact-2-step',
         })
@@ -566,7 +571,7 @@ form2.addEventListener('submit', async (e) => {
   }
 })
 </script>
-<script src="/tracking.js?v=202605031408" defer></script>
-<script src="/shared.js?v=202605031408"></script>
+<script src="/tracking.js?v=202605031452" defer></script>
+<script src="/shared.js?v=202605031452"></script>
 </body>
 </html>
