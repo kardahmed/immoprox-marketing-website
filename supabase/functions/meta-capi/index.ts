@@ -70,6 +70,18 @@ serve(async (req) => {
     };
 
     const url = `https://graph.facebook.com/v19.0/${pixelId}/events?access_token=${token}`;
+
+    // ─── Diagnostic logs (visible dans Supabase functions logs) ─────────
+    console.log('[meta-capi] Sending event', {
+      pixel_id: pixelId,
+      token_prefix: token.substring(0, 12) + '...',
+      token_length: token.length,
+      event_name: event.event_name,
+      event_id: event.event_id,
+      has_test_code: !!testCode,
+      url_safe: url.replace(token, '<TOKEN>'),
+    });
+
     const metaRes = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -78,10 +90,20 @@ serve(async (req) => {
     const metaJson = await metaRes.json();
 
     if (!metaRes.ok) {
-      console.error('Meta CAPI error', metaJson);
+      console.error('[meta-capi] FAILED', {
+        status: metaRes.status,
+        meta_error: metaJson,
+        pixel_id: pixelId,
+        token_prefix: token.substring(0, 12) + '...',
+        token_length: token.length,
+        hint: metaJson?.error?.code === 100 && metaJson?.error?.error_subcode === 33
+          ? 'Token does NOT have ads_management permission OR no admin access to this Pixel. Generate new token via Graph API Explorer with ads_management scope.'
+          : 'Check Meta error details',
+      });
       return jsonError('Meta CAPI failed: ' + JSON.stringify(metaJson), 502);
     }
 
+    console.log('[meta-capi] OK', { events_received: metaJson?.events_received, fbtrace: metaJson?.fbtrace_id });
     return jsonOk({ ok: true, fb: metaJson });
   } catch (err) {
     console.error('meta-capi exception', err);
