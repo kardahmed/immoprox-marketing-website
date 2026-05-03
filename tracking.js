@@ -24,9 +24,32 @@
   var CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
 
   // ─── HELPERS ─────────────────────────────────────────────────────────────
+  function getConsent() {
+    try {
+      var raw = localStorage.getItem('ipx_cookie_consent_v2');
+      if (raw) return JSON.parse(raw);
+      // Fallback v1 : tout accepté ou tout refusé
+      var legacy = localStorage.getItem('ipx_cookie_consent_v1');
+      if (legacy === 'accepted') return { analytics: true, marketing: true, personalization: true };
+      if (legacy === 'declined') return { analytics: false, marketing: false, personalization: false };
+    } catch (_) {}
+    return null;
+  }
   function consentGiven() {
-    try { return localStorage.getItem('ipx_cookie_consent_v1') === 'accepted'; }
-    catch (_) { return false; }
+    var c = getConsent();
+    return !!(c && (c.analytics || c.marketing));
+  }
+  function allowsAnalytics() {
+    var c = getConsent();
+    return !!(c && c.analytics);
+  }
+  function allowsMarketing() {
+    var c = getConsent();
+    return !!(c && c.marketing);
+  }
+  function allowsPersonalization() {
+    var c = getConsent();
+    return !!(c && c.personalization);
   }
 
   function uuid() {
@@ -235,14 +258,32 @@
     if (!consentGiven()) return;
     CONFIG = await fetchConfig();
 
-    loadGTM(CONFIG.gtm_id);
-    loadGoogleTags(CONFIG.ga4_id, CONFIG.gads_conversion_id);
-    loadMetaPixel(CONFIG.meta_pixel_id);
-    loadTikTokPixel(CONFIG.tiktok_pixel_id);
-    loadLinkedIn(CONFIG.linkedin_partner_id);
-    loadClarity(CONFIG.clarity_id);
-    loadHotjar(CONFIG.hotjar_id);
-    loadHubSpot(CONFIG.hubspot_hub_id);
+    // GTM est un container neutre, chargé dès qu'analytics OU marketing consenti
+    if (allowsAnalytics() || allowsMarketing()) {
+      loadGTM(CONFIG.gtm_id);
+    }
+
+    // Catégorie ANALYTICS (mesure d'audience)
+    if (allowsAnalytics()) {
+      loadGoogleTags(CONFIG.ga4_id, null);
+      loadClarity(CONFIG.clarity_id);
+      loadHotjar(CONFIG.hotjar_id);
+    }
+
+    // Catégorie MARKETING (publicité)
+    if (allowsMarketing()) {
+      loadGoogleTags(null, CONFIG.gads_conversion_id);
+      loadMetaPixel(CONFIG.meta_pixel_id);
+      loadTikTokPixel(CONFIG.tiktok_pixel_id);
+      loadLinkedIn(CONFIG.linkedin_partner_id);
+    }
+
+    // Catégorie PERSONALIZATION (chat, support)
+    if (allowsPersonalization()) {
+      loadHubSpot(CONFIG.hubspot_hub_id);
+    }
+
+    // Sentry est dans la catégorie ESSENTIELLE (monitoring d'erreurs)
     loadSentry(CONFIG.sentry_dsn);
   }
 
